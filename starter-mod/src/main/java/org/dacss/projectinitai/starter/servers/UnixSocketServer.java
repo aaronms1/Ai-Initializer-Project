@@ -2,7 +2,6 @@ package org.dacss.projectinitai.starter.servers;
 
 import org.dacss.projectinitai.messages.controllers.AiResponseController;
 import org.dacss.projectinitai.messages.controllers.UserRequestController;
-import org.dacss.projectinitai.services.MessagesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;

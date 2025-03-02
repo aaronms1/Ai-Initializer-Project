@@ -24,6 +24,8 @@
         <module>annotations-mod</module>
         <module>tokenizer-mod</module>
         <module>clients-mod</module>
+        <module>prompts-mod</module>
+        <module>models-mod</module>
     </modules>
 
     <parent>

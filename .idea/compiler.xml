@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="prompts-mod" />
         <module name="clients-mod" />
         <module name="system-settings-mod" />
         <module name="starter-mod" />
@@ -13,6 +14,7 @@
         <module name="snapshots-mod" />
         <module name="loaders-mod" />
         <module name="tokenizer-mod" />
+        <module name="models-mod" />
         <module name="downloaders-mod" />
         <module name="security-mod" />
         <module name="annotations-mod" />
@@ -38,6 +40,8 @@
       <module name="loaders-mod" options="-parameters" />
       <module name="messages-mod" options="-parameters" />
       <module name="metrics-mod" options="-parameters" />
+      <module name="models-mod" options="-parameters" />
+      <module name="prompts-mod" options="-parameters" />
       <module name="security-mod" options="-parameters" />
       <module name="services-mod" options="-parameters" />
       <module name="snapshots-mod" options="-parameters" />

@@ -1,7 +1,5 @@
 package org.dacss.projectinitai.messages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 /**
@@ -13,5 +11,10 @@ import reactor.core.publisher.Flux;
 @FunctionalInterface
 public interface MessagesIface {
 
+    /**
+     * <h3>{@link #processMessages(MessageAction)}</h3>
+     * @param action the action to be performed on the message
+     * @return a {@link Flux} of objects
+     */
     Flux<Object> processMessages(MessageAction action);
 }

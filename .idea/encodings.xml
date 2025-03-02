@@ -10,6 +10,8 @@
     <file url="file://$PROJECT_DIR$/loaders-mod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/messages-mod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/metrics-mod/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/models-mod/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/prompts-mod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/security-mod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/services-mod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/snapshots-mod/src/main/java" charset="UTF-8" />

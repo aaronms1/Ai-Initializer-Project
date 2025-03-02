@@ -25,6 +25,30 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ai.djl</groupId>
+            <artifactId>api</artifactId>
+            <version>0.32.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl.huggingface</groupId>
+            <artifactId>tokenizers</artifactId>
+            <version>0.32.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dacss.projectinitai</groupId>
+            <artifactId>models-mod</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dacss.projectinitai</groupId>
+            <artifactId>prompts-mod</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

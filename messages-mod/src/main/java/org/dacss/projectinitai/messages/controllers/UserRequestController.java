@@ -1,35 +1,61 @@
 package org.dacss.projectinitai.messages.controllers;
 
+import org.dacss.projectinitai.clients.LLMClientFactory;
 import org.dacss.projectinitai.clients.UniversalLLMClientIface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+/**
+ * <h1>{@link UserRequestController}</h1>
+ * A Universal controller for handling user requests sent to the LLM (Large Language Model).
+ */
 @Controller
 public class UserRequestController {
 
-    private static UniversalLLMClientIface llmClient;
+    private static Mono<UniversalLLMClientIface> llmClient;
     private static Sinks.Many<Object> userRequestSink = Sinks.many().unicast().onBackpressureBuffer();
 
+    /**
+     * <h3>{@link #UserRequestController(LLMClientFactory, WebClient.Builder)}</h3>
+     *
+     * @param llmClientFactory Factory to create LLM clients.
+     * @param webClientBuilder Builder for WebClient instances.
+     */
     @Autowired
-    public UserRequestController(UniversalLLMClientIface llmClient) {
-        UserRequestController.llmClient = llmClient;
+    public UserRequestController(LLMClientFactory llmClientFactory, WebClient.Builder webClientBuilder) {
+        // FIXME: clientType should not be hardcoded
+        UserRequestController.llmClient = llmClientFactory.createClient("huggingface", webClientBuilder);
     }
 
+    /**
+     * <h3>{@link #sendUserRequestToLLM(Flux)}</h3>
+     * Handles user requests sent to the LLM.
+     *
+     * @param message Flux stream of user messages.
+     * @return Flux stream of responses from the LLM.
+     */
     @MessageMapping("user.request")
     public static Flux<Object> sendUserRequestToLLM(Flux<Object> message) {
         return message
                 .doOnNext(userRequestSink::tryEmitNext)
                 .thenMany(userRequestSink.asFlux())
-                .flatMap(msg -> llmClient.prompt(msg.toString()).map(Object.class::cast))
-                .onErrorResume(e -> {
-                    System.err.println("Error in sendUserRequestToLLM: " + e.getMessage());
+                .flatMap(msg -> llmClient.flatMapMany(client -> client.handleClient(Flux.just(msg))))
+                .onErrorResume(userRequestExc -> {
+                    System.err.println("Error in sendUserRequestToLLM: " + userRequestExc.getMessage());
                     return Flux.just("An error occurred while processing the user request.");
                 });
     }
 
+    /**
+     * <h3>{@link #getRequestStream()}</h3>
+     *
+     * @return Flux stream of user requests.
+     */
     public Flux<Object> getRequestStream() {
         return userRequestSink.asFlux();
     }

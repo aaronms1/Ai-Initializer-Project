@@ -6,16 +6,15 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 
+/**
+ * <h1>{@link LlmClientConfig}</h1>
+ * Configuration class for the LLM client so spring can autowire it.
+ */
 @Configuration
 @ComponentScan(basePackages = "org.dacss.projectinitai.clients")
 public class LlmClientConfig {
     @Bean
     public UniversalLLMClientIface llmClient() {
-        return new UniversalLLMClientIface() {
-            @Override
-            public Mono<String> prompt(String message) {
-                return null;
-            }
-        };
+        return message ->/*fixme:->*/null;
     }
 }
