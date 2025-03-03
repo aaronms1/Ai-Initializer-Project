@@ -34,7 +34,7 @@ public class SearchModelsTest {
         String[] queries = {"qwen", "bert", "gpt-3", "fakeModel", "unknownName", "notFound"};
 
         for (String query : queries) {
-            Flux<JsonNode> flux = SearchModels.searchModels(action, query);
+            Flux<Object> flux = SearchModels.searchModels(query);
 
             StepVerifier.create(flux.collectList())
                     .expectNextMatches(models -> {

@@ -1,25 +1,19 @@
 package org.dacss.projectinitai.downloaders;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 
 /**
  * <h1>{@link SearchModels}</h1>
+ * Search models to download from Hugging Face.
  */
 public class SearchModels {
 
     private static final Logger log = LoggerFactory.getLogger(SearchModels.class);
     private static final String BASE_URL = "https://huggingface.co/api/models?search=";
+    private static final WebClient webClient = WebClient.create();
 
     /**
      * <h3>{@link #SearchModels()}</h3>
@@ -28,43 +22,19 @@ public class SearchModels {
     public SearchModels() {
     }
 
-    public static Flux<JsonNode> searchModels(DownloadAction action, String query) {
-        if (action != DownloadAction.SEARCH) {
-            return Flux.error(new UnsupportedOperationException("Unsupported action: " + action));
-        }
-
+    /**
+     * <h3>{@link #searchModels(String)}</h3>
+     * @param query search query
+     * @return Flux<Object> of search results
+     */
+    public static Flux<Object> searchModels(String query) {
         String searchUrl = BASE_URL + query;
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(searchUrl))
-                .timeout(Duration.ofSeconds(10))
-                .GET()
-                .build();
 
-        return Flux.create(sink -> client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(response -> {
-                log.info("HTTP Status Code: {}", response.statusCode());
-                log.info("Response Body: {}", response.body());
-                return response.body();
-            })
-            .thenAccept(responseBody -> {
-                ObjectMapper objectMapper = new ObjectMapper();
-                try {
-                    JsonNode models = objectMapper.readTree(responseBody);
-                    for (JsonNode model : models) {
-                        sink.next(model);
-                    }
-                    sink.complete();
-                } catch (IOException e) {
-                    sink.error(new IOException("Failed to parse models: " + e.getMessage(), e));
-                }
-            })
-            .exceptionally(e -> {
-                log.error("Error occurred while searching models: ", e);
-                sink.error(e);
-                return null;
-            }));
+        return webClient.get()
+                .uri(searchUrl)
+                .retrieve()
+                .bodyToFlux(Object.class)
+                .doOnNext(model -> log.info("Received model: {}", model))
+                .doOnError(e -> log.error("Error occurred while searching models: ", e));
     }
 }

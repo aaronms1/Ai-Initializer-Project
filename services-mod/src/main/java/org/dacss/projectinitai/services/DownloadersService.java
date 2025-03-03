@@ -18,8 +18,18 @@ public class DownloadersService implements DownloadersIface {
 
     private static final Logger log = LoggerFactory.getLogger(DownloadersService.class);
 
+    /**
+     * <h3>{@link #DownloadersService()}</h3>
+     * Default 0-arg constructor
+     */
     public DownloadersService() {}
 
+    /**
+     * <h3>{@link DownloadersIface#download(DownloadAction, String)}</h3>
+     * @param action DownloadAction representing the action to be performed
+     * @param llmName String representing the LLM name
+     * @return Flux<Object> of the download action
+     */
     @Override
     public Flux<Object> download(DownloadAction action, String llmName) {
         Flux<Object> flux;
@@ -27,8 +37,8 @@ public class DownloadersService implements DownloadersIface {
             flux = switch (action) {
                 case API_TOKEN -> SecurityApiTokenUtil.getApiToken();
                 case DOWNLOAD_LLM_JSON -> LLMLibraryUtil.downloadLLMJsonFile();
-                case DOWNLOAD_LLM_MODEL -> LLMDownloader.downloadLLM(action, llmName);
-                case SEARCH -> SearchModels.searchModels(action, llmName);
+                case DOWNLOAD_LLM_MODEL -> LLMDownloader.downloadLLM(llmName);
+                case SEARCH -> SearchModels.searchModels(llmName);
             };
         } catch (Exception downloadersServiceExc) {
             log.error("{}:", downloadersServiceExc.getMessage(), downloadersServiceExc);
@@ -36,7 +46,6 @@ public class DownloadersService implements DownloadersIface {
         } finally {
             log.info("{}: {}", action, llmName);
         }
-        assert flux != null;
         return flux;
     }
 }
