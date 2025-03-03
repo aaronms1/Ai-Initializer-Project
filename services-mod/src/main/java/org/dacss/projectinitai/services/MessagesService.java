@@ -34,7 +34,6 @@ public class MessagesService implements MessagesIface {
                 case RETRY -> RetryMessage.retryMessageSet(Flux.just(new Object().toString())); //info-> this is a temp hack for now.
                 case TRASH -> TrashMessageSet.destroyMessageSet(Flux.just(new Object()));
                 case SESSION_END -> PublishSessionEnd.publishSessionEnd();
-//                case TOKENIZE -> Tokenizer.tokenize("");
             };
         } catch (Exception messagesServiceExc) {
             log.error("{}: Error from MessagesService performing action:", action, messagesServiceExc);

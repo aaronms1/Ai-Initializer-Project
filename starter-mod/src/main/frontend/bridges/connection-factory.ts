@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, Method } from "axios";
 import { Observable, from, Subject } from "rxjs";
+import { switchMap } from "rxjs/operators";
 import { RSocketClient, JsonSerializer, IdentitySerializer } from "rsocket-core";
 import RSocketWebSocketClient from "rsocket-websocket-client";
 
@@ -64,7 +65,7 @@ export function createConnectionClient(config: { prefix: string }) {
     httpMethod: Method = "POST"
   ): Observable<T> {
     return from(fetchServiceName(bridgeName)).pipe(
-      switchMap((serviceName) => {
+      switchMap((serviceName: string) => {
         const url = `/${serviceName}/${method}`;
 
         const request = instance.request<T>({

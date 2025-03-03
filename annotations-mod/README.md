@@ -2,33 +2,30 @@
 
 ## Overview
 
-The `@Bridge` annotation is designed to facilitate seamless communication between front-end TypeScript 'bridge' classes and back-end services in a Spring Boot application. This annotation, when applied to a service class, enables automatic registration and mapping of the service, simplifying the process of exposing service methods as REST endpoints.
+The `@Bridge` annotation is designed to facilitate seamless communication between front-end TypeScript 'bridge' classes and back-end services in a Spring Boot application. This annotation, when applied to a service class, enables automatic registration and mapping of the service, simplifying the process of exposing service methods as REST endpoints. The `@Bridge` classes were developed to be used in multi-module Maven projects.
 
 ## Purpose
 
 The primary purpose of the `@Bridge` annotation is to:
 
 1. **Automate Service Registration**: Automatically register annotated services in the `BridgeRegistry`, which maintains a map of service names to service instances.
-2. **Generate API Handlers**: Generate API handler classes that expose the service methods as REST endpoints, reducing boilerplate code and potential errors.
-3. **Simplify Front-end Integration**: Provide a straightforward way for front-end applications to interact with back-end services through TypeScript 'bridge' classes.
+2. **Simplify Front-end Integration**: Provide a straightforward way for front-end applications to interact with back-end services through TypeScript 'bridge' classes.
 
 ## Benefits
 
 ### 1. Reduced Boilerplate Code
 
-At the point of writing this, the framework has well over 20 front-end 
-callable services. Multiply those by the number of actions each service
-can perform and you have a lot of boilerplate code. I wrote essentially 3
-java classes and 1 typescript class to handle all of that.
-By using the `@Bridge` annotation, developers can avoid writing repetitive code for registering services and creating REST controllers. The `BridgeAnnotationProcessor` handles these tasks automatically.
+The `@Bridge` annotation eliminates the need to manually register services and create API handlers for each service. 
+This reduces boilerplate code and ensures that services are automatically exposed to the frontend. Without the `@Bridge` functionality, 
+for a service with multiple options such as the below `Downloaders` switch cases, we would have to create controllers for each case.
 
 ### 2. Consistent API Exposure
 
-The generated API handlers ensure that all services are exposed in a consistent manner, following the same conventions and patterns. This consistency makes it easier to maintain and extend the application.
+The `@Bridge` annotation ensures that all services are exposed in a consistent manner, following the same conventions and patterns. This consistency makes it easier to maintain and extend the application.
 
 ### 3. Improved Maintainability
 
-With the `@Bridge` annotation, changes to service classes are automatically reflected in the generated API handlers. This reduces the risk of discrepancies between the service implementation and its exposed API.
+With the `@Bridge` annotation, changes to service classes are automatically reflected in the exposed API. This reduces the risk of discrepancies between the service implementation and its exposed API.
 
 ### 4. Enhanced Developer Productivity
 
@@ -42,7 +39,7 @@ The following sequence diagram illustrates the interaction between the front-end
 
 ## Class Diagram
 
-The class diagram below provides an overview of the key classes and their relationships in the system:
+The following class diagram shows the relationship between the `@Bridge` annotation, the `BridgeRegistry`, the service classes, and the TypeScript frontend:
 
 ![Class Diagram](pumles/class.png)
 
@@ -50,83 +47,106 @@ The class diagram below provides an overview of the key classes and their relati
 
 To use the `@Bridge` annotation, follow these steps:
 
-1. **Annotate your service class with `@Bridge("service-name")` and implement the `processMessages` method** (step 1):
+1. **Annotate your service class with `@Bridge("service-name")` and implement a public method**:
     ```java
-    @Bridge("messages-service")
-    public class MessagesService implements MessagesIface {
-        // Service implementation
+    @Service
+    @Bridge("downloaders-service")
+    public class DownloadersService implements DownloadersIface {
+
+        public DownloadersService() {}
 
         @Override
-        public Flux<Object> processMessages(MessageActions action) {
+        public Flux<Object> download(DownloadAction action, String llmName) {
             Flux<Object> flux;
             try {
                 flux = switch (action) {
-                    case REQUEST -> UserRequest.sendUserRequestToLLM(Flux.just(new Object()));
-                    case RESPONSE -> AiResponse.receiveAiResponseFromLLM(Flux.just(new Object()));
-                    case THUMBS_UP -> ThumbsUp.processThumbsUp(Flux.just(new Object()));
-                    case THUMBS_DOWN -> ThumbsDown.processThumbsDown(Flux.just(new Object()));
-                    case RETRY -> RetryMessage.retryMessageSet(Flux.just(new Object().toString()));
-                    case TRASH -> TrashMessageSet.destroyMessageSet(Flux.just(new Object()));
+                    case API_TOKEN -> SecurityApiTokenUtil.getApiToken();
+                    case DOWNLOAD_LLM_JSON -> LLMLibraryUtil.downloadLLMJsonFile();
+                    case DOWNLOAD_LLM_MODEL -> LLMDownloader.downloadLLM(llmName);
+                    case SEARCH -> SearchModels.searchModels(llmName);
                 };
-            } catch (Exception messagesServiceExc) {
-                log.error("{}: Error from MessagesService performing action:", action, messagesServiceExc);
+            } catch (Exception downloadersServiceExc) {
+                log.error("{}:", downloadersServiceExc.getMessage(), downloadersServiceExc);
                 return Flux.empty();
             } finally {
-                log.info("MessagesService action completed: {}", action);
+                log.info("{}: {}", action, llmName);
             }
             return flux;
         }
     }
     ```
 
-2. **Create the TypeScript bridge(note we have matching action enum here 
-   as well). import the connectionFactory** (step 2):
+2. **Create the TypeScript bridge and import the connectionFactory**:
     ```typescript
     import { from, Observable } from "rxjs";
     import { map } from "rxjs/operators";
-   //(1)
-    import client from "./ConnectionFactory";
-   //(matching action enum. in bolth the front and back end)
-    import { MessageActions } from "../enums/MessageActions";
+    import client from "./connection-factory";
+    import { DownloadActions } from '../enums/download-actions';
 
-   //matches the @Bridge("messages-service") in the back end
-    const SERVICE = "messages-service";
-
-    /**
-     * <h1>{@link MessageBridge}</h1>
-     * @param action MessageActions
-     * @constructor MessageBridge
-     */
-    export const MessageBridge = (action: MessageActions): Observable<any> => {
-        return from(
-            client.call(
-   //client.call is a method that makes a post request to the server
-                SERVICE,
-   //SERVICE is the name of the service
-                "processMessages",
-   //action is the parameter(enum)
-                { action })
-        ).pipe(map(response => response));
+    export const SearchModelsBridge
+    = (action: DownloadActions): Observable<any> => {
+    return from(
+    client.call(
+    "SearchModelsBridge",
+    "download",
+    { action })
+    ).pipe(map(response => response));
     };
     ```
 
-3. **The `BridgeAnnotationProcessor` will generate the necessary API 
-    handler classes**:
-    ```java
-    @RestController
-    @RequestMapping("/messages-service")
-    public class MessagesServiceApiHandler {
+3. **The connection factory handles all mapping and connections**:
+    ```typescript
+    async function fetchServiceName(bridgeName: string): Promise<string> {
+    const response = await instance.get(`/bridgeRegistry/${bridgeName}`);
+    return response.data.serviceName;
+    }
 
-        private final BridgeRegistry bridgeRegistry;
+    function call<T = any>(
+    bridgeName: string,
+    method: string,
+    params?: any,
+    httpMethod: Method = "POST"
+    ): Observable<T> {
+    return from(fetchServiceName(bridgeName)).pipe(
+    switchMap((serviceName: string) => {
+    const url = `/${serviceName}/${method}`;
 
-        public MessagesServiceApiHandler(BridgeRegistry bridgeRegistry) {
-            this.bridgeRegistry = bridgeRegistry;
-        }
+    const request = instance.request<T>({
+    url,
+    method: httpMethod,
+    data: httpMethod === "POST" ? params : undefined,
+    params: httpMethod !== "POST" ? params : undefined,
+    });
 
-        @PostMapping("/processMessages")
-        public Flux<Object> processMessages(@RequestBody MessageActions action) {
-            MessagesService service = (MessagesService) bridgeRegistry.getService("messages-service");
-            return service.processMessages(action);
-        }
+    // Convert the Promise-based Axios request to an Observable
+    return from(request.then((response) => response.data));
+    })
+    );
     }
     ```
+4. **Call the bridge from your front-end component**:
+    ```typescript
+   import { SearchModelsBridge } from "../bridges/search-models-bridge";
+   import { DownloadActions } from "../enums/download-actions";
+   import { firstValueFrom } from "rxjs";
+   
+   // Usage of SearchModelsBridge in a function
+   const fetchAndSetModels = async () => {
+       try {
+           const response = await firstValueFrom(SearchModelsBridge(DownloadActions.SEARCH));
+           // Handle the response
+       } catch (error) {
+           console.error("Error fetching models:", error);
+       }
+   };
+   
+   const handleDownload = async (modelId: string) => {
+       try {
+           await firstValueFrom(SearchModelsBridge(DownloadActions.DOWNLOAD_LLM_MODEL));
+           // Handle successful download
+       } catch (error) {
+           console.error("Error downloading model:", error);
+       }
+   };
+    ```
+   

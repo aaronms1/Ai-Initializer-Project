@@ -1,76 +1,70 @@
 @startuml
-legend top left
-  |= Color |= Description |
-  |<back:LightBlue>LightBlue|Generated Controller|
-endlegend
 
-package "Frontend" {
-  class ChatClientView {
-    - request: string
-    - messageSets: MessageSet[]
-    - loading: boolean
-    - response: string
-    - subscription: Subscription
-    + handleMessageSent(userRequest: string): void
-    + handleResponseReceived(aiResponse: string): void
-    + renderMessageOptions(index: number): React.ReactNode
-    + handleIconClick(index: number, action: MessageAction): void
-  }
+package "org.dacss.projectinitai.annotations" {
+    class Bridge {
+        +String value()
+    }
 
-  class MessageBridge {
-    + MessageBridge(action: MessageAction): Observable<any>
-  }
+    class BridgeAnnotationProcessor {
+        +boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
+        +static Set<String> getRegisteredServices()
+    }
+
+    class BridgeRegistry {
+        -Map<String, Object> bridgeMap
+        +BridgeRegistry(ApplicationContext context)
+        +Object getService(String bridgeName)
+        +Set<String> getRegisteredServices()
+    }
 }
 
-package "Backend" {
-  class MessagesService {
-    - log: Logger
-    + processMessages(action: MessageAction): Flux<Object>
-  }
-
-  class UserRequest {
-    + sendUserRequestToLLM(flux: Flux<Object>): Flux<Object>
-    + getRequestStream(): Flux<Object>
-  }
-
-  class AiResponse {
-    + receiveAiResponseFromLLM(flux: Flux<Object>): Flux<Object>
-    + getResponseStream(): Flux<Object>
-  }
-
-  class MessageAction {
-    <<enumeration>>
-    REQUEST
-    RESPONSE
-    THUMBS_UP
-    THUMBS_DOWN
-    RETRY
-    TRASH
-  }
-
-  class MessagesServiceApiHandler #LightBlue {
-    - bridgeRegistry: BridgeRegistry
-    + processMessages(action: MessageAction): Flux<Object>
-  }
-
-  class BridgeRegistry {
-    - bridgeMap: Map<String, Object>
-    + getService(bridgeName: String): Object
-  }
-
-  class BridgeAnnotationProcessor {
-    + process(annotations: Set<? extends TypeElement>, roundEnv: RoundEnvironment): boolean
-  }
+package "org.dacss.projectinitai.services" {
+    class DownloadersService {
+        +DownloadersService()
+        +Flux<Object> download(DownloadAction action, String llmName)
+    }
 }
 
-ChatClientView --> MessageBridge
-MessageBridge --> MessagesServiceApiHandler
-MessagesServiceApiHandler --> BridgeRegistry
-MessagesServiceApiHandler --> MessagesService
-MessagesService --> UserRequest
-MessagesService --> AiResponse
-BridgeAnnotationProcessor --> MessagesService
-BridgeAnnotationProcessor --> BridgeRegistry
-BridgeRegistry --> MessagesService
-MessagesService --> MessageAction : processMessages
+package "frontend.bridges" {
+    class SearchModelsBridge {
+        +Observable<any> call(DownloadActions action)
+    }
+
+    class ConnectionFactory {
+        +Observable<T> call(String bridgeName, String method, Object params, Method httpMethod)
+        +Observable<T> rsocketCall(String route, Object data, boolean isStream)
+    }
+}
+
+package "frontend.pages" {
+    class SearchModelsView {
+        +void fetchAndSetModels()
+        +void handleDownload(String modelId)
+    }
+}
+
+package "frontend.enums" {
+    class DownloadActions {}
+}
+
+package "frontend.components" {
+    class NotificationService {
+        +void show(String message, String type)
+    }
+}
+
+BridgeAnnotationProcessor --> Bridge
+BridgeRegistry --> BridgeAnnotationProcessor
+BridgeRegistry --> Bridge
+DownloadersService --> Bridge
+DownloadersService --> DownloadActions
+DownloadersService --> SecurityApiTokenUtil
+DownloadersService --> LLMLibraryUtil
+DownloadersService --> LLMDownloader
+DownloadersService --> SearchModels
+SearchModelsBridge --> ConnectionFactory
+SearchModelsView --> SearchModelsBridge
+SearchModelsView --> DownloadActions
+SearchModelsView --> NotificationService
+
 @enduml
