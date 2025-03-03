@@ -3,8 +3,6 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import client from './connection-factory';
 
-const SERVICE = "downloaders-service";
-
 /**
  * <h1>{@link LoadUnloadBridge}</h1>
  * @param action
@@ -12,6 +10,6 @@ const SERVICE = "downloaders-service";
  */
 export const LoadUnloadBridge = (action: DownloadActions): Observable<any> => {
   return from(
-    client.call(SERVICE, "download", { action })
+    client.call("LoadUnloadBridge", "download", { action })
   ).pipe(map(response => response));
 };
