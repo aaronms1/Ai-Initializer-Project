@@ -9,6 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import com.langchain4j.LangChainClient;
+import ai.djl.Model;
+import ai.djl.ModelException;
+import ai.djl.translate.TranslateException;
 
 /**
  * <h1>{@link UserRequestController}</h1>
@@ -46,8 +50,10 @@ public class UserRequestController {
                 .thenMany(userRequestSink.asFlux())
                 .flatMap(msg -> llmClient.flatMapMany(client -> client.handleClient(Flux.just(msg))))
                 .onErrorResume(userRequestExc -> {
-                    System.err.println("Error in sendUserRequestToLLM: " + userRequestExc.getMessage());
-                    return Flux.just("An error occurred while processing the user request.");
+                    if (userRequestExc instanceof ModelException || userRequestExc instanceof TranslateException) {
+                        return Flux.just("An error occurred while processing the user request with the model.");
+                    }
+                    return Flux.error(userRequestExc);
                 });
     }
 

@@ -35,6 +35,7 @@ public final class PingServerUtil {
         Runnable pingTask = () -> {
             pingHttpServer();
             UnixSocketServer.pingServer();
+            pingAdditionalLLMProviders();
         };
 
         scheduler.scheduleAtFixedRate(pingTask, 0, 5, TimeUnit.SECONDS);
@@ -58,6 +59,34 @@ public final class PingServerUtil {
             }
         } catch (IOException | URISyntaxException pingHttpExc) {
             logger.error("Error pinging HTTP server on port {}: {}", PORT, pingHttpExc.getMessage());
+        }
+    }
+
+    /**
+     * <h1>{@link #pingAdditionalLLMProviders()}</h1>
+     * Pings additional LLM providers to check if they are up.
+     */
+    private static void pingAdditionalLLMProviders() {
+        String[] llmProviders = {
+                "https://api.openai.com/v1/ping",
+                "https://api.us-south.assistant.watson.cloud.ibm.com/v1/ping",
+                "https://api.cognitive.microsoft.com/sts/v1.0/ping"
+        };
+
+        for (String providerUrl : llmProviders) {
+            try {
+                URL url = new URL(providerUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                int responseCode = connection.getResponseCode();
+                if (responseCode == 200) {
+                    logger.info("Ping... {}", providerUrl);
+                } else {
+                    logger.warn("Failed to ping LLM provider {}: {}", providerUrl, responseCode);
+                }
+            } catch (IOException pingLLMProviderExc) {
+                logger.error("Error pinging LLM provider {}: {}", providerUrl, pingLLMProviderExc.getMessage());
+            }
         }
     }
 }

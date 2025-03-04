@@ -31,6 +31,15 @@ public final class StopHttpServerUtil {
      * Stops the HTTP server.
      */
     public static void stopServer() {
+        stopHttpServer();
+        stopAdditionalLLMProviders();
+    }
+
+    /**
+     * <h1>{@link #stopHttpServer()}</h1>
+     * Stops the HTTP server.
+     */
+    private static void stopHttpServer() {
         try {
             URI uri = new URI("http", null, "localhost", PORT, "/shutdown", null, null);
             URL url = uri.toURL();
@@ -44,6 +53,34 @@ public final class StopHttpServerUtil {
             }
         } catch (IOException | URISyntaxException e) {
             logger.error("Error stopping HTTP server on port {}: {}", PORT, e.getMessage());
+        }
+    }
+
+    /**
+     * <h1>{@link #stopAdditionalLLMProviders()}</h1>
+     * Stops additional LLM providers.
+     */
+    private static void stopAdditionalLLMProviders() {
+        String[] llmProviders = {
+                "https://api.openai.com/v1/shutdown",
+                "https://api.us-south.assistant.watson.cloud.ibm.com/v1/shutdown",
+                "https://api.cognitive.microsoft.com/sts/v1.0/shutdown"
+        };
+
+        for (String providerUrl : llmProviders) {
+            try {
+                URL url = new URL(providerUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                int responseCode = connection.getResponseCode();
+                if (responseCode == 200) {
+                    logger.info("LLM provider stopped successfully: {}", providerUrl);
+                } else {
+                    logger.warn("Failed to stop LLM provider {}: {}", providerUrl, responseCode);
+                }
+            } catch (IOException e) {
+                logger.error("Error stopping LLM provider {}: {}", providerUrl, e.getMessage());
+            }
         }
     }
 }
