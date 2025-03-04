@@ -4,6 +4,10 @@ import org.dacss.projectinitai.models.ModelSettings;
 import org.dacss.projectinitai.prompts.PromptFactory;
 import reactor.core.publisher.Flux;
 import org.springframework.web.reactive.function.client.WebClient;
+import com.langchain4j.LangChainClient;
+import ai.djl.Model;
+import ai.djl.ModelException;
+import ai.djl.translate.TranslateException;
 
 /**
  * <h1>{@link UniversalLLMClient}</h1>
@@ -15,20 +19,26 @@ public class UniversalLLMClient implements UniversalLLMClientIface {
     private final ModelSettings modelSettings;
     private final String uri;
     private final PromptFactory promptFactory;
+    private final LangChainClient langChainClient;
+    private final Model model;
 
     /**
-     * <h3>{@link #UniversalLLMClient(WebClient, ModelSettings, String, PromptFactory)}</h3>
+     * <h3>{@link #UniversalLLMClient(WebClient, ModelSettings, String, PromptFactory, LangChainClient, Model)}</h3>
      *
      * @param webClient The {@link WebClient} instance for making HTTP requests.
      * @param modelSettings The settings for the model.
      * @param uri The URI for the model endpoint.
      * @param promptFactory The factory for creating prompts.
+     * @param langChainClient The LangChain client for handling requests.
+     * @param model The model instance.
      */
-    public UniversalLLMClient(WebClient webClient, ModelSettings modelSettings, String uri, PromptFactory promptFactory) {
+    public UniversalLLMClient(WebClient webClient, ModelSettings modelSettings, String uri, PromptFactory promptFactory, LangChainClient langChainClient, Model model) {
         this.webClient = webClient;
         this.modelSettings = modelSettings;
         this.uri = uri;
         this.promptFactory = promptFactory;
+        this.langChainClient = langChainClient;
+        this.model = model;
     }
 
     /**
@@ -48,6 +58,12 @@ public class UniversalLLMClient implements UniversalLLMClientIface {
                         .bodyValue(prompt.toString())
                         .retrieve()
                         .bodyToFlux(Object.class))
+                .onErrorResume(e -> {
+                    if (e instanceof ModelException || e instanceof TranslateException) {
+                        return Flux.just("An error occurred while processing the request with the model.");
+                    }
+                    return Flux.error(e);
+                })
         );
     }
 }

@@ -9,6 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import com.langchain4j.LangChainClient;
+import ai.djl.Model;
+import ai.djl.ModelException;
+import ai.djl.translate.TranslateException;
 
 /**
  * <h1>{@link AiResponseController}</h1>
@@ -46,8 +50,10 @@ public class AiResponseController {
                 .thenMany(aiResponseSink.asFlux())
                 .flatMap(msg -> llmClient.flatMapMany(client -> client.handleClient(Flux.just(msg))))
                 .onErrorResume(aiResponseExc -> {
-                    System.err.println("Error in receiveAiResponseFromLLM: " + aiResponseExc.getMessage());
-                    return Flux.just("An error occurred while processing the AI response.");
+                    if (aiResponseExc instanceof ModelException || aiResponseExc instanceof TranslateException) {
+                        return Flux.just("An error occurred while processing the AI response with the model.");
+                    }
+                    return Flux.error(aiResponseExc);
                 });
     }
 

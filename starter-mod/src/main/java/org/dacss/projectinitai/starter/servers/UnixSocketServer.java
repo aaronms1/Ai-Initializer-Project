@@ -6,6 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
+import com.langchain4j.LangChainClient;
+import ai.djl.Model;
+import ai.djl.ModelException;
+import ai.djl.translate.TranslateException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +33,8 @@ public final class UnixSocketServer {
     private static Socket socket;
     private static OutputStream outputStream;
     private static InputStream inputStream;
+    private static LangChainClient langChainClient;
+    private static Model model;
 
     /**
      * <h3>{@link UnixSocketServer}</h3>
@@ -37,6 +43,12 @@ public final class UnixSocketServer {
      */
     public UnixSocketServer(String llmName) {
         socketPath = Paths.get("/var/run/project-init-ai/" + llmName + ".sock");
+        langChainClient = new LangChainClient(System.getenv("LLM_API_KEY"));
+        try {
+            model = Model.newInstance(llmName);
+        } catch (ModelException e) {
+            logger.error("Error initializing model: {}", e.getMessage());
+        }
     }
 
     /**

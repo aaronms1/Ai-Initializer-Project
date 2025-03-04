@@ -27,7 +27,7 @@ public class WebFluxConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:30320")
+                .allowedOrigins("http://localhost:30320", "https://api.openai.com", "https://api.us-south.assistant.watson.cloud.ibm.com", "https://api.cognitive.microsoft.com")
                 .allowedMethods("GET", "POST", "PUT", "DELETE");
     }
 

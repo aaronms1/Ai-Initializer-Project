@@ -5,6 +5,10 @@ import org.dacss.projectinitai.prompts.PromptFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.langchain4j.LangChainClient;
+import ai.djl.Model;
+import ai.djl.ModelException;
+import ai.djl.translate.TranslateException;
 
 /**
  * <h1>{@link LLMClientFactory}</h1>
@@ -57,11 +61,31 @@ public class LLMClientFactory {
                     baseUrl = "https://api.nvidia.com/nemo/v1";
                     yield "/generate";
                 }
+                case "openai" -> {
+                    baseUrl = "https://api.openai.com/v1";
+                    yield "/completions";
+                }
+                case "ibmwatson" -> {
+                    baseUrl = "https://api.us-south.assistant.watson.cloud.ibm.com/instances";
+                    yield "/v1/workspaces";
+                }
+                case "microsoftazure" -> {
+                    baseUrl = "https://api.cognitive.microsoft.com/sts/v1.0";
+                    yield "/issuetoken";
+                }
                 default -> throw new IllegalArgumentException("Unknown client type: " + clientType);
             };
         }
 
         return modelSettingsFactory.createModelSettings(modelType, localModelPath)
-                .map(modelSettings -> new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory));
+                .map(modelSettings -> {
+                    try {
+                        LangChainClient langChainClient = new LangChainClient(apiKey);
+                        Model model = Model.newInstance(clientType);
+                        return new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory, langChainClient, model);
+                    } catch (ModelException | TranslateException e) {
+                        throw new RuntimeException("Error creating LLM client", e);
+                    }
+                });
     }
 }
