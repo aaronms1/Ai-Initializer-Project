@@ -1,10 +1,8 @@
 package org.dacss.projectinitai.clients;
 
-import org.dacss.projectinitai.models.ModelSettings;
 import org.dacss.projectinitai.models.ModelSettingsFactory;
 import org.dacss.projectinitai.prompts.PromptFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -12,7 +10,7 @@ import reactor.core.publisher.Mono;
  * <h1>{@link LLMClientFactory}</h1>
  * Factory class for creating instances of {@link UniversalLLMClientIface}.
  */
-@Component
+//@Component
 public class LLMClientFactory {
 
     @Value("${llm.api.key}")
@@ -63,7 +61,7 @@ public class LLMClientFactory {
             };
         }
 
-        return modelSettingsFactory.createModelSettings(apiKey, modelType, localModelPath)
+        return modelSettingsFactory.createModelSettings(modelType, localModelPath)
                 .map(modelSettings -> new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory));
     }
 }
