@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import reactor.core.publisher.Flux;
+import com.langchain4j.LangChain4j;
+import org.springframework.ai.SpringAI;
 
 /**
  * <h1>{@link LoadUnloadService}</h1>
@@ -27,14 +29,21 @@ public class LoadUnloadService implements LoadersIface {
 
     @Override
     public Flux<Object> loadUnloadLLM(LoadUnLoadActions action) {
+        LangChain4j langChain4j = new LangChain4j();
+        SpringAI springAI = new SpringAI();
+
         switch (action) {
             case LOAD_KERNEL:
                 String modelPath = null;
                 new LoadLLMKernelAPI().loadModelKernel(modelPath);
+                langChain4j.chain(modelPath);
+                springAI.integrate(modelPath);
                 break;
             case UNLOAD_KERNEL:
                 byte[] modelData = new byte[0];
                 new UnLoadKernel().unloadModelKernel(modelData);
+                langChain4j.chain(modelData);
+                springAI.integrate(modelData);
                 break;
         }
         return Flux.just(MessageFormat.format("Model {0} operation completed", action));

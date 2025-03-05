@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.langchain4j.LangChain4j;
+import org.springframework.ai.SpringAI;
 
 /**
  * <h1>{@link LLMClientFactory}</h1>
@@ -64,6 +66,13 @@ public class LLMClientFactory {
         }
 
         return modelSettingsFactory.createModelSettings(apiKey, modelType, localModelPath)
-                .map(modelSettings -> new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory));
+                .map(modelSettings -> {
+                    UniversalLLMClient client = new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory);
+                    LangChain4j langChain4j = new LangChain4j();
+                    SpringAI springAI = new SpringAI();
+                    langChain4j.chain(client);
+                    springAI.integrate(client);
+                    return client;
+                });
     }
 }
