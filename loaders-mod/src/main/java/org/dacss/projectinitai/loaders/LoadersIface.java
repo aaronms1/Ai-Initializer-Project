@@ -10,5 +10,5 @@ import reactor.core.publisher.Flux;
 @FunctionalInterface
 public interface LoadersIface {
 
-    Flux<Object> loadUnloadLLM(LoadUnLoadActions action);
+    Flux<Object> loadUnloadLLM(LoadUnLoadActions action, String modelPath);
 }

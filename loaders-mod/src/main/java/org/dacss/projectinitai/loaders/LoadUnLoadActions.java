@@ -5,6 +5,6 @@ package org.dacss.projectinitai.loaders;
  * Enum class for switching loading and unloading functionality.
  */
 public enum LoadUnLoadActions {
-    LOAD_KERNEL,
-    UNLOAD_KERNEL
+    LOAD,
+    UNLOAD
 }
