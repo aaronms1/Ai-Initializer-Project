@@ -8,7 +8,6 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-
         <module>checksums-mod</module>
         <module>databases-mod</module>
         <module>directories-mod</module>
@@ -41,9 +40,11 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <springframework.version>6.2.3</springframework.version>
         <apring-boot.version>3.4.3</apring-boot.version>
         <spring-ai.version>1.0.0-M5</spring-ai.version>
         <tornado.version>1.0.9-dev</tornado.version>
+        <ai.djl.version>0.32.0</ai.djl.version>
         <testng.version>7.10.2</testng.version>
         <slf4j.version>2.0.16</slf4j.version>
         <mockito.version>5.15.2</mockito.version>
@@ -98,11 +99,25 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-framework-bom -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${springframework.version}</version>
+                <type>pom</type>
+            </dependency>
             <dependency>
                 <groupId>tornado</groupId>
                 <artifactId>tornado-api</artifactId>
                 <version>${tornado.version}</version>
                 <scope>compile</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/ai.djl/bom -->
+            <dependency>
+                <groupId>ai.djl</groupId>
+                <artifactId>bom</artifactId>
+                <version>${ai.djl.version}</version>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
