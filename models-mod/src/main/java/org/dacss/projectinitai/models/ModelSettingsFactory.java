@@ -1,22 +1,34 @@
 package org.dacss.projectinitai.models;
 
-import reactor.core.publisher.Mono;
-
-/**
- * <h1>{@link ModelSettingsFactory}</h1>
- * Factory class for creating instances of {@link ModelSettings}.
- */
 public class ModelSettingsFactory {
-
-    /**
-     * <h3>{@link #createModelSettings(String, String, String)}</h3>
-     *
-     * @param apiKey The API key for the model.
-     * @param modelType The type of the model (e.g., remote, local).
-     * @param localModelPath The local path to the model, if applicable.
-     * @return A {@link Mono} emitting the created {@link ModelSettings} instance.
-     */
-    public Mono<ModelSettings> createModelSettings(String apiKey, String modelType, String localModelPath) {
-        return Mono.just(new ModelSettings(apiKey, modelType, localModelPath));
+    public static ModelSettings createModelSettings(String modelName, String modelVersion, String architectures, double attentionDropout, int bosTokenId, int eosTokenId, String hiddenAct, int hiddenSize, double initializerRange, int intermediateSize, int maxPositionEmbeddings, int maxWindowLayers, String modelType, int numAttentionHeads, int numHiddenLayers, int numKeyValueHeads, double rmsNormEps, double ropeTheta, int slidingWindow, boolean tieWordEmbeddings, String torchDtype, String transformersVersion, boolean useCache, boolean useMrope, boolean useSlidingWindow, int vocabSize) {
+        ModelSettings settings = new ModelSettings();
+        settings.setModelName(modelName);
+        settings.setModelVersion(modelVersion);
+        settings.setArchitectures(architectures);
+        settings.setAttentionDropout(attentionDropout);
+        settings.setBosTokenId(bosTokenId);
+        settings.setEosTokenId(eosTokenId);
+        settings.setHiddenAct(hiddenAct);
+        settings.setHiddenSize(hiddenSize);
+        settings.setInitializerRange(initializerRange);
+        settings.setIntermediateSize(intermediateSize);
+        settings.setMaxPositionEmbeddings(maxPositionEmbeddings);
+        settings.setMaxWindowLayers(maxWindowLayers);
+        settings.setModelType(modelType);
+        settings.setNumAttentionHeads(numAttentionHeads);
+        settings.setNumHiddenLayers(numHiddenLayers);
+        settings.setNumKeyValueHeads(numKeyValueHeads);
+        settings.setRmsNormEps(rmsNormEps);
+        settings.setRopeTheta(ropeTheta);
+        settings.setSlidingWindow(slidingWindow);
+        settings.setTieWordEmbeddings(tieWordEmbeddings);
+        settings.setTorchDtype(torchDtype);
+        settings.setTransformersVersion(transformersVersion);
+        settings.setUseCache(useCache);
+        settings.setUseMrope(useMrope);
+        settings.setUseSlidingWindow(useSlidingWindow);
+        settings.setVocabSize(vocabSize);
+        return settings;
     }
 }
