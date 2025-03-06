@@ -1,5 +1,9 @@
 package org.dacss.projectinitai.models;
 
+/**
+ * <h1>{@link ModelSettings}</h1>
+ * POJO to store the settings of a model.
+ */
 public class ModelSettings {
     private String modelName;
     private String modelVersion;
@@ -28,214 +32,125 @@ public class ModelSettings {
     private boolean useSlidingWindow;
     private int vocabSize;
 
-    public ModelSettings() {
-    }
+    // Additional configurations
+    private double learningRate;
+    private int batchSize;
+    private int epochs;
+    private String optimizer;
+    private String lossFunction;
+    private double dropoutRate;
+    private double weightDecay;
+    private double gradientClipping;
+    private boolean earlyStopping;
+    private boolean dataAugmentation;
 
-    public String getModelName() {
-        return modelName;
-    }
+    public ModelSettings() {}
 
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
+    public String getModelName() { return modelName; }
+    public void setModelName(String modelName) { this.modelName = modelName; }
 
-    public String getModelVersion() {
-        return modelVersion;
-    }
+    public String getModelVersion() { return modelVersion; }
+    public void setModelVersion(String modelVersion) { this.modelVersion = modelVersion; }
 
-    public void setModelVersion(String modelVersion) {
-        this.modelVersion = modelVersion;
-    }
+    public String getArchitectures() { return architectures; }
+    public void setArchitectures(String architectures) { this.architectures = architectures; }
 
-    public String getArchitectures() {
-        return architectures;
-    }
+    public double getAttentionDropout() { return attentionDropout; }
+    public void setAttentionDropout(double attentionDropout) { this.attentionDropout = attentionDropout; }
 
-    public void setArchitectures(String architectures) {
-        this.architectures = architectures;
-    }
+    public int getBosTokenId() { return bosTokenId; }
+    public void setBosTokenId(int bosTokenId) { this.bosTokenId = bosTokenId; }
 
-    public double getAttentionDropout() {
-        return attentionDropout;
-    }
+    public int getEosTokenId() { return eosTokenId; }
+    public void setEosTokenId(int eosTokenId) { this.eosTokenId = eosTokenId; }
 
-    public void setAttentionDropout(double attentionDropout) {
-        this.attentionDropout = attentionDropout;
-    }
+    public String getHiddenAct() { return hiddenAct; }
+    public void setHiddenAct(String hiddenAct) { this.hiddenAct = hiddenAct; }
 
-    public int getBosTokenId() {
-        return bosTokenId;
-    }
+    public int getHiddenSize() { return hiddenSize; }
+    public void setHiddenSize(int hiddenSize) { this.hiddenSize = hiddenSize; }
 
-    public void setBosTokenId(int bosTokenId) {
-        this.bosTokenId = bosTokenId;
-    }
+    public double getInitializerRange() { return initializerRange; }
+    public void setInitializerRange(double initializerRange) { this.initializerRange = initializerRange; }
 
-    public int getEosTokenId() {
-        return eosTokenId;
-    }
+    public int getIntermediateSize() { return intermediateSize; }
+    public void setIntermediateSize(int intermediateSize) { this.intermediateSize = intermediateSize; }
 
-    public void setEosTokenId(int eosTokenId) {
-        this.eosTokenId = eosTokenId;
-    }
+    public int getMaxPositionEmbeddings() { return maxPositionEmbeddings; }
+    public void setMaxPositionEmbeddings(int maxPositionEmbeddings) { this.maxPositionEmbeddings = maxPositionEmbeddings; }
 
-    public String getHiddenAct() {
-        return hiddenAct;
-    }
+    public int getMaxWindowLayers() { return maxWindowLayers; }
+    public void setMaxWindowLayers(int maxWindowLayers) { this.maxWindowLayers = maxWindowLayers; }
 
-    public void setHiddenAct(String hiddenAct) {
-        this.hiddenAct = hiddenAct;
-    }
+    public String getModelType() { return modelType; }
+    public void setModelType(String modelType) { this.modelType = modelType; }
 
-    public int getHiddenSize() {
-        return hiddenSize;
-    }
+    public int getNumAttentionHeads() { return numAttentionHeads; }
+    public void setNumAttentionHeads(int numAttentionHeads) { this.numAttentionHeads = numAttentionHeads; }
 
-    public void setHiddenSize(int hiddenSize) {
-        this.hiddenSize = hiddenSize;
-    }
+    public int getNumHiddenLayers() { return numHiddenLayers; }
+    public void setNumHiddenLayers(int numHiddenLayers) { this.numHiddenLayers = numHiddenLayers; }
 
-    public double getInitializerRange() {
-        return initializerRange;
-    }
+    public int getNumKeyValueHeads() { return numKeyValueHeads; }
+    public void setNumKeyValueHeads(int numKeyValueHeads) { this.numKeyValueHeads = numKeyValueHeads; }
 
-    public void setInitializerRange(double initializerRange) {
-        this.initializerRange = initializerRange;
-    }
+    public double getRmsNormEps() { return rmsNormEps; }
+    public void setRmsNormEps(double rmsNormEps) { this.rmsNormEps = rmsNormEps; }
 
-    public int getIntermediateSize() {
-        return intermediateSize;
-    }
+    public double getRopeTheta() { return ropeTheta; }
+    public void setRopeTheta(double ropeTheta) { this.ropeTheta = ropeTheta; }
 
-    public void setIntermediateSize(int intermediateSize) {
-        this.intermediateSize = intermediateSize;
-    }
+    public int getSlidingWindow() { return slidingWindow; }
+    public void setSlidingWindow(int slidingWindow) { this.slidingWindow = slidingWindow; }
 
-    public int getMaxPositionEmbeddings() {
-        return maxPositionEmbeddings;
-    }
+    public boolean isTieWordEmbeddings() { return tieWordEmbeddings; }
+    public void setTieWordEmbeddings(boolean tieWordEmbeddings) { this.tieWordEmbeddings = tieWordEmbeddings; }
 
-    public void setMaxPositionEmbeddings(int maxPositionEmbeddings) {
-        this.maxPositionEmbeddings = maxPositionEmbeddings;
-    }
+    public String getTorchDtype() { return torchDtype; }
+    public void setTorchDtype(String torchDtype) { this.torchDtype = torchDtype; }
 
-    public int getMaxWindowLayers() {
-        return maxWindowLayers;
-    }
+    public String getTransformersVersion() { return transformersVersion; }
+    public void setTransformersVersion(String transformersVersion) { this.transformersVersion = transformersVersion; }
 
-    public void setMaxWindowLayers(int maxWindowLayers) {
-        this.maxWindowLayers = maxWindowLayers;
-    }
+    public boolean isUseCache() { return useCache; }
+    public void setUseCache(boolean useCache) { this.useCache = useCache; }
 
-    public String getModelType() {
-        return modelType;
-    }
+    public boolean isUseMrope() { return useMrope; }
+    public void setUseMrope(boolean useMrope) { this.useMrope = useMrope; }
 
-    public void setModelType(String modelType) {
-        this.modelType = modelType;
-    }
+    public boolean isUseSlidingWindow() { return useSlidingWindow; }
+    public void setUseSlidingWindow(boolean useSlidingWindow) { this.useSlidingWindow = useSlidingWindow; }
 
-    public int getNumAttentionHeads() {
-        return numAttentionHeads;
-    }
+    public int getVocabSize() { return vocabSize; }
+    public void setVocabSize(int vocabSize) { this.vocabSize = vocabSize; }
 
-    public void setNumAttentionHeads(int numAttentionHeads) {
-        this.numAttentionHeads = numAttentionHeads;
-    }
+    public double getLearningRate() { return learningRate; }
+    public void setLearningRate(double learningRate) { this.learningRate = learningRate; }
 
-    public int getNumHiddenLayers() {
-        return numHiddenLayers;
-    }
+    public int getBatchSize() { return batchSize; }
+    public void setBatchSize(int batchSize) { this.batchSize = batchSize; }
 
-    public void setNumHiddenLayers(int numHiddenLayers) {
-        this.numHiddenLayers = numHiddenLayers;
-    }
+    public int getEpochs() { return epochs; }
+    public void setEpochs(int epochs) { this.epochs = epochs; }
 
-    public int getNumKeyValueHeads() {
-        return numKeyValueHeads;
-    }
+    public String getOptimizer() { return optimizer; }
+    public void setOptimizer(String optimizer) { this.optimizer = optimizer; }
 
-    public void setNumKeyValueHeads(int numKeyValueHeads) {
-        this.numKeyValueHeads = numKeyValueHeads;
-    }
+    public String getLossFunction() { return lossFunction; }
+    public void setLossFunction(String lossFunction) { this.lossFunction = lossFunction; }
 
-    public double getRmsNormEps() {
-        return rmsNormEps;
-    }
+    public float getDropoutRate() { return (float) dropoutRate; }
+    public void setDropoutRate(double dropoutRate) { this.dropoutRate = dropoutRate; }
 
-    public void setRmsNormEps(double rmsNormEps) {
-        this.rmsNormEps = rmsNormEps;
-    }
+    public double getWeightDecay() { return weightDecay; }
+    public void setWeightDecay(double weightDecay) { this.weightDecay = weightDecay; }
 
-    public double getRopeTheta() {
-        return ropeTheta;
-    }
+    public double getGradientClipping() { return gradientClipping; }
+    public void setGradientClipping(double gradientClipping) { this.gradientClipping = gradientClipping; }
 
-    public void setRopeTheta(double ropeTheta) {
-        this.ropeTheta = ropeTheta;
-    }
+    public boolean isEarlyStopping() { return earlyStopping; }
+    public void setEarlyStopping(boolean earlyStopping) { this.earlyStopping = earlyStopping; }
 
-    public int getSlidingWindow() {
-        return slidingWindow;
-    }
-
-    public void setSlidingWindow(int slidingWindow) {
-        this.slidingWindow = slidingWindow;
-    }
-
-    public boolean isTieWordEmbeddings() {
-        return tieWordEmbeddings;
-    }
-
-    public void setTieWordEmbeddings(boolean tieWordEmbeddings) {
-        this.tieWordEmbeddings = tieWordEmbeddings;
-    }
-
-    public String getTorchDtype() {
-        return torchDtype;
-    }
-
-    public void setTorchDtype(String torchDtype) {
-        this.torchDtype = torchDtype;
-    }
-
-    public String getTransformersVersion() {
-        return transformersVersion;
-    }
-
-    public void setTransformersVersion(String transformersVersion) {
-        this.transformersVersion = transformersVersion;
-    }
-
-    public boolean isUseCache() {
-        return useCache;
-    }
-
-    public void setUseCache(boolean useCache) {
-        this.useCache = useCache;
-    }
-
-    public boolean isUseMrope() {
-        return useMrope;
-    }
-
-    public void setUseMrope(boolean useMrope) {
-        this.useMrope = useMrope;
-    }
-
-    public boolean isUseSlidingWindow() {
-        return useSlidingWindow;
-    }
-
-    public void setUseSlidingWindow(boolean useSlidingWindow) {
-        this.useSlidingWindow = useSlidingWindow;
-    }
-
-    public int getVocabSize() {
-        return vocabSize;
-    }
-
-    public void setVocabSize(int vocabSize) {
-        this.vocabSize = vocabSize;
-    }
+    public boolean isDataAugmentation() { return dataAugmentation; }
+    public void setDataAugmentation(boolean dataAugmentation) { this.dataAugmentation = dataAugmentation; }
 }

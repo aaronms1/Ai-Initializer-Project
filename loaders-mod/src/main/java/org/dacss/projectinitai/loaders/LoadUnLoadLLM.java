@@ -13,7 +13,8 @@ import java.nio.file.Paths;
 
 /**
  * <h1>{@link LoadUnLoadLLM}</h1>
- * Class for loading and unloading a model dynamically on to/from the GPU.
+ * Class for loading and unloading a pre-trained model dynamically on to/from the GPU.
+ * this will most likely be moved to the 'models-mod' module. if we dont create any more loaders.
  */
 public class LoadUnLoadLLM {
 
@@ -29,12 +30,12 @@ public class LoadUnLoadLLM {
     }
 
     /**
-     * {@link #loadModelKernel(String)}
+     * {@link #loadUnloadLLM(String)}
      * Loads a model with DJL and TornadoVM.
      *
      * @return byte[] - returns the model data.
      */
-    public byte[] loadModelKernel(String modelPath) {
+    public byte[] loadUnloadLLM(String modelPath) {
         try {
             Path path = Paths.get(modelPath);
             model = Model.newInstance("model");
@@ -43,19 +44,27 @@ public class LoadUnLoadLLM {
             modelData = Files.readAllBytes(path);
             final byte[] finalModelData = modelData; // Make modelData effectively final
 
+            // Create a 2D Worker
+            WorkerGrid workerGrid = new WorkerGrid2D(16, 16);
+            // Attach the worker to the Grid
+            GridScheduler gridScheduler = new GridScheduler("loadUnloadLLM", workerGrid);
+            // Create a context
+            KernelContext context = new KernelContext();
+            // Set the local-group size
+            workerGrid.setLocalWork(16, 16, 1);
+
             TaskGraph taskGraph = new TaskGraph("s0")
                     .transferToDevice(DataTransferMode.FIRST_EXECUTION, finalModelData)
                     .task("loadModel", () -> {
-                        KernelContext context = new KernelContext();
                         int idx = context.globalIdx;
                         if (idx < finalModelData.length) {
                             finalModelData[idx] = (byte) (finalModelData[idx] + 1);
                         }
                     })
                     .task("killSwitch", () -> {
-                        KernelContext context = new KernelContext();
                         int idx = context.globalIdx;
                         if (idx < finalModelData.length) {
+                            //fixme ASAP!: we need to ensure this will not 0 out all data on GPU, but only the model data
                             finalModelData[idx] = 0; // Simulate unloading by setting data to zero
                         }
                     })
@@ -65,21 +74,22 @@ public class LoadUnLoadLLM {
 
             try (TornadoExecutionPlan executionPlan = new TornadoExecutionPlan(immutableTaskGraph)) {
                 executionPlan.getDevice(0).getAvailableProcessors();
-                executionPlan.withDynamicReconfiguration(Policy.PERFORMANCE, DRMode.PARALLEL).execute();
+                executionPlan.withGridScheduler(gridScheduler).execute();
             } catch (TornadoExecutionPlanException loadModelKernelExc) {
                 log.error("Error executing Tornado plan: {}", loadModelKernelExc.getMessage());
             } finally {
+                //fixme ASAP: we dont want this to be happening on every execution of the class, only when the model is unloaded(ie. by user switching llm or shutting down the system)
                 killSwitch(finalModelData);
             }
-        } catch (IOException | ModelException e) {
-            log.error("Error loading model: {}", e.getMessage());
+        } catch (IOException | ModelException loadUnLoadExc) {
+            log.error("Error loading model: {}", loadUnLoadExc.getMessage());
         }
 
         return modelData;
     }
 
     /**
-     * Killswitch method to transfer the LLM back to the host and set the data to 0.
+     * KillSwitch method to transfer the LLM back to the host and set the data to 0.
      *
      * @param modelData the model data.
      */
@@ -88,20 +98,20 @@ public class LoadUnLoadLLM {
     }
 
     /**
-     * {@link #unloadModelKernel(byte[])}
+     * {@link #unloadModel(byte[])}
      * Unloads a model with DJL and TornadoVM.
      *
      * @return boolean - returns true if the model was successfully unloaded.
      */
-    public boolean unloadModelKernel(byte[] modelData) {
+    public boolean unloadModel(byte[] modelData) {
         boolean success = false;
         try {
             if (model != null) {
                 model.close();
             }
             success = true;
-        } catch (Exception e) {
-            log.error("Error unloading model: {}", e.getMessage());
+        } catch (Exception unloadExc) {
+            log.error("Error unloading model: {}", unloadExc.getMessage());
         }
 
         return success;
@@ -109,9 +119,7 @@ public class LoadUnLoadLLM {
 
     /**
      * {@link #loadModel(String)}
-     * <p>
      * Loads a model from the file system.
-     * </p>
      *
      * @param modelPath the path to the model.
      * @return byte[] - returns the model data.
@@ -127,7 +135,7 @@ public class LoadUnLoadLLM {
      * @return byte[] - returns the model.
      */
     public byte[] getModel() {
-        return loadModelKernel("modelPath");
+        return loadUnloadLLM("modelPath");
     }
 
     /**
@@ -140,13 +148,4 @@ public class LoadUnLoadLLM {
         return model != null;
     }
 
-    /**
-     * {@link #kernelIsUnloaded()}
-     * Checks if the kernel is unloaded.
-     *
-     * @return boolean - returns true if the kernel is unloaded.
-     */
-    public boolean kernelIsUnloaded() {
-        return model == null;
-    }
 }

@@ -1,7 +1,7 @@
 package org.dacss.projectinitai.clients;
 
-import org.dacss.projectinitai.models.ModelSettings;
 import org.dacss.projectinitai.models.ModelSettingsFactory;
+import org.dacss.projectinitai.models.ModelsActions;
 import org.dacss.projectinitai.prompts.PromptFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,6 @@ public class LLMClientFactory {
     @Value("${llm.local.model.path:}")
     private String localModelPath;
 
-    private final ModelSettingsFactory modelSettingsFactory = new ModelSettingsFactory();
     private final PromptFactory promptFactory = new PromptFactory();
 
     /**
@@ -39,7 +38,7 @@ public class LLMClientFactory {
         String uri;
 
         if ("local".equalsIgnoreCase(modelType)) {
-            baseUrl = "http://localhost:30320/chat";//mapped to our frontend server port '/chat' feature
+            baseUrl = "http://localhost:30320/chat"; // mapped to our frontend server port '/chat' feature
             uri = localModelPath;
         } else {
             uri = switch (clientType.toLowerCase()) {
@@ -63,7 +62,10 @@ public class LLMClientFactory {
             };
         }
 
-        return modelSettingsFactory.createModelSettings(apiKey, modelType, localModelPath)
+        ModelSettingsFactory modelSettingsFactory = new ModelSettingsFactory(localModelPath);
+
+        return modelSettingsFactory.processModel(ModelsActions.SETTINGS)
+                .next()
                 .map(modelSettings -> new UniversalLLMClient(webClientBuilder.baseUrl(baseUrl).build(), modelSettings, uri, promptFactory));
     }
 }
